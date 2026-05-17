@@ -2,11 +2,12 @@ import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
 
+// Embed image 900x600 — text left, cards right (cards start at x≥460, safe from frame clipping)
 export async function GET() {
   const W = 900;
   const H = 600;
-  const CARD_W = 152;
-  const CARD_H = 213;
+  const CARD_W = 155;
+  const CARD_H = 217;
   const CARD_R = 12;
 
   const SYM: Record<string, string> = { S: '♠', H: '♥', D: '♦', C: '♣' };
@@ -23,15 +24,15 @@ export async function GET() {
         paddingTop: 18, paddingBottom: 18, paddingLeft: 20, paddingRight: 20,
       }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <div style={{ display: 'flex', fontSize: 44, fontWeight: 700, color, lineHeight: 1 }}>{rank}</div>
-          <div style={{ display: 'flex', fontSize: 26, color, lineHeight: 1 }}>{sym}</div>
+          <div style={{ display: 'flex', fontSize: 42, fontWeight: 700, color, lineHeight: 1 }}>{rank}</div>
+          <div style={{ display: 'flex', fontSize: 24, color, lineHeight: 1 }}>{sym}</div>
         </div>
         <div style={{ display: 'flex', alignSelf: 'center' }}>
-          <div style={{ display: 'flex', fontSize: 68, color: pipColor, lineHeight: 1 }}>{sym}</div>
+          <div style={{ display: 'flex', fontSize: 64, color: pipColor, lineHeight: 1 }}>{sym}</div>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2, alignSelf: 'flex-end', transform: 'rotate(180deg)' }}>
-          <div style={{ display: 'flex', fontSize: 44, fontWeight: 700, color, lineHeight: 1 }}>{rank}</div>
-          <div style={{ display: 'flex', fontSize: 26, color, lineHeight: 1 }}>{sym}</div>
+          <div style={{ display: 'flex', fontSize: 42, fontWeight: 700, color, lineHeight: 1 }}>{rank}</div>
+          <div style={{ display: 'flex', fontSize: 24, color, lineHeight: 1 }}>{sym}</div>
         </div>
       </div>
     );
@@ -43,53 +44,50 @@ export async function GET() {
         width: W, height: H, display: 'flex',
         background: '#EDE8DF', fontFamily: 'sans-serif',
       }}>
-        {/* Left: Cards — spacer div to guarantee left margin */}
-        <div style={{ display: 'flex', width: 400, alignItems: 'center' }}>
-          <div style={{ display: 'flex', width: 44 }} />
-          <div style={{ display: 'flex', gap: 20 }}>
-            <Card rank="A" suit="S" />
-            <Card rank="K" suit="H" red />
-          </div>
-        </div>
-
-        {/* Vertical divider */}
+        {/* Left: Text (460px) — starts at x=0 but has paddingLeft:56 so text at x=56 */}
         <div style={{
-          display: 'flex', width: 1, background: '#D4CFC7',
-          marginTop: 56, marginBottom: 56,
-        }} />
-
-        {/* Right: Text (900 - 400 left - 1 divider = 499) */}
-        <div style={{
-          display: 'flex', width: 499, flexDirection: 'column',
+          display: 'flex', width: 460, flexDirection: 'column',
           justifyContent: 'space-between',
           paddingTop: 52, paddingBottom: 52,
-          paddingLeft: 48, paddingRight: 52,
+          paddingLeft: 56, paddingRight: 32,
         }}>
-          {/* Label */}
-          <div style={{ display: 'flex', fontSize: 13, letterSpacing: 7, color: '#8A8580' }}>
+          <div style={{ display: 'flex', fontSize: 13, letterSpacing: 6, color: '#8A8580' }}>
             BASE CHAIN
           </div>
 
-          {/* Main content */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            <div style={{ display: 'flex', fontSize: 68, fontWeight: 300, color: '#1C1C1A', letterSpacing: -2, lineHeight: 1 }}>
+            <div style={{ display: 'flex', fontSize: 72, fontWeight: 300, color: '#1C1C1A', letterSpacing: -2, lineHeight: 1 }}>
               Blackjack
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-              <div style={{ width: 48, height: 1, background: '#C4A882', display: 'flex' }} />
-              <div style={{ display: 'flex', fontSize: 18, letterSpacing: 10, color: '#A0784A', fontWeight: 700 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ display: 'flex', width: 36, height: 1, background: '#C4A882' }} />
+              <div style={{ display: 'flex', fontSize: 17, letterSpacing: 10, color: '#A0784A', fontWeight: 700 }}>
                 BLACKJACK
               </div>
-              <div style={{ width: 48, height: 1, background: '#C4A882', display: 'flex' }} />
+              <div style={{ display: 'flex', width: 36, height: 1, background: '#C4A882' }} />
             </div>
             <div style={{ display: 'flex', fontSize: 100, fontWeight: 700, color: '#1C1C1A', lineHeight: 1 }}>
               21
             </div>
           </div>
 
-          {/* CTA */}
-          <div style={{ display: 'flex', fontSize: 17, color: '#8A8580', letterSpacing: 1 }}>
+          <div style={{ display: 'flex', fontSize: 16, color: '#8A8580', letterSpacing: 1 }}>
             Beat the dealer. Play on Base.
+          </div>
+        </div>
+
+        {/* Vertical divider (1px) */}
+        <div style={{
+          display: 'flex', width: 1, background: '#D4CFC7',
+          marginTop: 56, marginBottom: 56,
+        }} />
+
+        {/* Right: Cards (439px) — cards start at x≈517, never clips left edge */}
+        <div style={{ display: 'flex', width: 439, alignItems: 'center' }}>
+          <div style={{ display: 'flex', width: 56 }} />
+          <div style={{ display: 'flex', gap: 20 }}>
+            <Card rank="A" suit="S" />
+            <Card rank="K" suit="H" red />
           </div>
         </div>
       </div>
