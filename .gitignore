@@ -24,3 +24,11 @@ next-env.d.ts
 
 # claude
 .claude/
+
+# local-only assets for Base Build registration (served by route handlers in production)
+/public/icon.png
+/public/splash.png
+/public/og-image.png
+/public/screenshot1.png
+/public/screenshot2.png
+/public/screenshot3.png
