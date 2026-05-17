@@ -45,6 +45,9 @@ export function PlayingCard({ card, small = false }: CardProps) {
         <div>{card.rank}</div>
         <div className="text-xs">{symbol}</div>
       </div>
+      <div className={`absolute inset-0 flex items-center justify-center pointer-events-none ${colorClass}`}>
+        <span className={small ? 'text-base' : 'text-2xl'}>{symbol}</span>
+      </div>
       <div className={`self-end rotate-180 font-bold leading-none ${colorClass}`}>
         <div>{card.rank}</div>
         <div className="text-xs">{symbol}</div>
