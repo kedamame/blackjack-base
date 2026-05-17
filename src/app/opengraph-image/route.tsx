@@ -5,9 +5,9 @@ export const runtime = 'edge';
 export async function GET() {
   const W = 900;
   const H = 600;
-  const CARD_W = 165;
-  const CARD_H = 231;
-  const CARD_R = 14;
+  const CARD_W = 152;
+  const CARD_H = 213;
+  const CARD_R = 12;
 
   const SYM: Record<string, string> = { S: '♠', H: '♥', D: '♦', C: '♣' };
 
@@ -43,10 +43,11 @@ export async function GET() {
         width: W, height: H, display: 'flex',
         background: '#EDE8DF', fontFamily: 'sans-serif',
       }}>
-        {/* Left: Cards */}
+        {/* Left: Cards — explicit padding to avoid frame clipping */}
         <div style={{
           display: 'flex', width: 400,
-          alignItems: 'center', justifyContent: 'center',
+          alignItems: 'center',
+          paddingLeft: 44, paddingRight: 16,
         }}>
           <div style={{ display: 'flex', gap: 20 }}>
             <Card rank="A" suit="S" />
