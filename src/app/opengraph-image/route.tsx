@@ -43,12 +43,9 @@ export async function GET() {
         width: W, height: H, display: 'flex',
         background: '#EDE8DF', fontFamily: 'sans-serif',
       }}>
-        {/* Left: Cards — explicit padding to avoid frame clipping */}
-        <div style={{
-          display: 'flex', width: 400,
-          alignItems: 'center',
-          paddingLeft: 44, paddingRight: 16,
-        }}>
+        {/* Left: Cards — spacer div to guarantee left margin */}
+        <div style={{ display: 'flex', width: 400, alignItems: 'center' }}>
+          <div style={{ display: 'flex', width: 44 }} />
           <div style={{ display: 'flex', gap: 20 }}>
             <Card rank="A" suit="S" />
             <Card rank="K" suit="H" red />
