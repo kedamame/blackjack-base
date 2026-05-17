@@ -8,7 +8,7 @@ export async function GET() {
   const H = 2778;
   const PAD = 64;
   const CARD_W = 260;
-  const CARD_H = 364;
+  const CARD_H = 400;
   const CARD_R = 20;
 
   const SYM: Record<string, string> = { S: '♠', H: '♥', D: '♦', C: '♣' };
