@@ -5,9 +5,9 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://blackjack-base.verce
 export async function GET() {
   return NextResponse.json({
     accountAssociation: {
-      header: 'REPLACE_WITH_WARPCAST_MANIFEST_HEADER',
-      payload: 'REPLACE_WITH_WARPCAST_MANIFEST_PAYLOAD',
-      signature: 'REPLACE_WITH_WARPCAST_MANIFEST_SIGNATURE',
+      header: 'eyJmaWQiOjIxMTE4OSwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweEFBZTM5NEQ1MWUyYzBhOTczNWUwQmI2NzdFMTJmMjE1MjVCRWI1NTIifQ',
+      payload: 'eyJkb21haW4iOiJibGFja2phY2stYmFzZS52ZXJjZWwuYXBwIn0',
+      signature: 'WlfBirJpfEIt8Cf/UonW3QzpQa+LCbZG4AKpUJ+M5Gl/+n3HZwhD9iUf8WtsosITasIeDkrNc4QcCwy/yLb3pRs=',
     },
     miniapp: {
       version: '1',
