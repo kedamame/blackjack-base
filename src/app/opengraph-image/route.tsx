@@ -7,7 +7,7 @@ export async function GET() {
   const W = 900;
   const H = 600;
   const CARD_W = 155;
-  const CARD_H = 217;
+  const CARD_H = 256; // inner=220px, content=200px → 20px breathing room (was 217→overflow)
   const CARD_R = 12;
 
   const SYM: Record<string, string> = { S: '♠', H: '♥', D: '♦', C: '♣' };

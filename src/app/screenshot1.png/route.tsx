@@ -43,7 +43,7 @@ export async function GET() {
           <div style={{ display: 'flex', fontSize: 38, color, lineHeight: 1 }}>{sym}</div>
         </div>
         <div style={{ display: 'flex', alignSelf: 'center' }}>
-          <div style={{ display: 'flex', fontSize: 108, color: pipColor, lineHeight: 1 }}>{sym}</div>
+          <div style={{ display: 'flex', fontSize: 90, color: pipColor, lineHeight: 1 }}>{sym}</div>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2, alignSelf: 'flex-end', transform: 'rotate(180deg)' }}>
           <div style={{ display: 'flex', fontSize: 68, fontWeight: 700, color, lineHeight: 1 }}>{rank}</div>
