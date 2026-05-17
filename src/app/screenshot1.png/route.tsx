@@ -11,31 +11,43 @@ export async function GET() {
   const CARD_H = 364;
   const CARD_R = 20;
 
+  const SYM: Record<string, string> = { S: '♠', H: '♥', D: '♦', C: '♣' };
+
   function Card({ rank, suit, red, faceDown }: { rank: string; suit: string; red?: boolean; faceDown?: boolean }) {
     if (faceDown) {
       return (
         <div style={{
           display: 'flex', width: CARD_W, height: CARD_H,
-          background: '#2A2A28', borderRadius: CARD_R,
-          border: '1px solid #1a1a18',
-        }} />
+          background: '#1C1C1A', borderRadius: CARD_R,
+          paddingTop: 10, paddingBottom: 10, paddingLeft: 10, paddingRight: 10,
+        }}>
+          <div style={{
+            display: 'flex', flex: 1,
+            border: '1px solid #363634', borderRadius: CARD_R - 4,
+          }} />
+        </div>
       );
     }
     const color = red ? '#C0392B' : '#1C1C1A';
+    const pipColor = red ? '#EDD8D5' : '#CCCAC6';
+    const sym = SYM[suit] ?? suit;
     return (
       <div style={{
         display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
-        width: CARD_W, height: CARD_H, background: '#F5F1EA',
+        width: CARD_W, height: CARD_H, background: '#FDFAF5',
         border: '1px solid #D4CFC7', borderRadius: CARD_R,
-        paddingTop: 28, paddingBottom: 28, paddingLeft: 32, paddingRight: 32,
+        paddingTop: 24, paddingBottom: 24, paddingLeft: 28, paddingRight: 28,
       }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <div style={{ display: 'flex', fontSize: 72, fontWeight: 700, color, lineHeight: 1 }}>{rank}</div>
-          <div style={{ display: 'flex', fontSize: 36, color }}>{suit}</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <div style={{ display: 'flex', fontSize: 68, fontWeight: 700, color, lineHeight: 1 }}>{rank}</div>
+          <div style={{ display: 'flex', fontSize: 38, color, lineHeight: 1 }}>{sym}</div>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignSelf: 'flex-end', transform: 'rotate(180deg)' }}>
-          <div style={{ display: 'flex', fontSize: 72, fontWeight: 700, color, lineHeight: 1 }}>{rank}</div>
-          <div style={{ display: 'flex', fontSize: 36, color }}>{suit}</div>
+        <div style={{ display: 'flex', alignSelf: 'center' }}>
+          <div style={{ display: 'flex', fontSize: 108, color: pipColor, lineHeight: 1 }}>{sym}</div>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2, alignSelf: 'flex-end', transform: 'rotate(180deg)' }}>
+          <div style={{ display: 'flex', fontSize: 68, fontWeight: 700, color, lineHeight: 1 }}>{rank}</div>
+          <div style={{ display: 'flex', fontSize: 38, color, lineHeight: 1 }}>{sym}</div>
         </div>
       </div>
     );
@@ -81,11 +93,17 @@ export async function GET() {
           </div>
         </div>
 
-        {/* Divider */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 32, paddingLeft: PAD, paddingRight: PAD }}>
-          <div style={{ flex: 1, height: 1, background: '#D4CFC7', display: 'flex' }} />
-          <div style={{ display: 'flex', fontSize: 22, letterSpacing: 10, color: '#C8C3BB' }}>VS</div>
-          <div style={{ flex: 1, height: 1, background: '#D4CFC7', display: 'flex' }} />
+        {/* VS divider with decorative suits */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20, paddingLeft: PAD, paddingRight: PAD }}>
+          <div style={{ display: 'flex', gap: 48 }}>
+            <div style={{ display: 'flex', fontSize: 164, color: '#D0CCC4', lineHeight: 1 }}>♠</div>
+            <div style={{ display: 'flex', fontSize: 164, color: '#E2D0CC', lineHeight: 1 }}>♥</div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 32, width: '100%' }}>
+            <div style={{ flex: 1, height: 1, background: '#D4CFC7', display: 'flex' }} />
+            <div style={{ display: 'flex', fontSize: 22, letterSpacing: 12, color: '#C0BBB3' }}>VS</div>
+            <div style={{ flex: 1, height: 1, background: '#D4CFC7', display: 'flex' }} />
+          </div>
         </div>
 
         {/* Player */}

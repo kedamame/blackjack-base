@@ -11,22 +11,29 @@ export async function GET() {
   const CARD_H = 308;
   const CARD_R = 16;
 
+  const SYM: Record<string, string> = { S: '♠', H: '♥', D: '♦', C: '♣' };
+
   function Card({ rank, suit, red }: { rank: string; suit: string; red?: boolean }) {
     const color = red ? '#C0392B' : '#1C1C1A';
+    const pipColor = red ? '#EDD8D5' : '#CCCAC6';
+    const sym = SYM[suit] ?? suit;
     return (
       <div style={{
         display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
-        width: CARD_W, height: CARD_H, background: '#F5F1EA',
+        width: CARD_W, height: CARD_H, background: '#FDFAF5',
         border: '1px solid #D4CFC7', borderRadius: CARD_R,
-        paddingTop: 24, paddingBottom: 24, paddingLeft: 28, paddingRight: 28,
+        paddingTop: 20, paddingBottom: 20, paddingLeft: 24, paddingRight: 24,
       }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <div style={{ display: 'flex', fontSize: 60, fontWeight: 700, color, lineHeight: 1 }}>{rank}</div>
-          <div style={{ display: 'flex', fontSize: 30, color }}>{suit}</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <div style={{ display: 'flex', fontSize: 56, fontWeight: 700, color, lineHeight: 1 }}>{rank}</div>
+          <div style={{ display: 'flex', fontSize: 30, color, lineHeight: 1 }}>{sym}</div>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignSelf: 'flex-end', transform: 'rotate(180deg)' }}>
-          <div style={{ display: 'flex', fontSize: 60, fontWeight: 700, color, lineHeight: 1 }}>{rank}</div>
-          <div style={{ display: 'flex', fontSize: 30, color }}>{suit}</div>
+        <div style={{ display: 'flex', alignSelf: 'center' }}>
+          <div style={{ display: 'flex', fontSize: 88, color: pipColor, lineHeight: 1 }}>{sym}</div>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2, alignSelf: 'flex-end', transform: 'rotate(180deg)' }}>
+          <div style={{ display: 'flex', fontSize: 56, fontWeight: 700, color, lineHeight: 1 }}>{rank}</div>
+          <div style={{ display: 'flex', fontSize: 30, color, lineHeight: 1 }}>{sym}</div>
         </div>
       </div>
     );
@@ -65,6 +72,7 @@ export async function GET() {
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 28 }}>
             <div style={{ display: 'flex', fontSize: 26, letterSpacing: 8, color: '#8A8580' }}>DEALER</div>
             <div style={{ display: 'flex', fontSize: 56, fontWeight: 300, color: '#C0392B', lineHeight: 1 }}>22</div>
+            <div style={{ display: 'flex', fontSize: 22, letterSpacing: 6, color: '#C0392B', alignSelf: 'center' }}>BUST</div>
           </div>
           <div style={{ display: 'flex', gap: 20 }}>
             <Card rank="9" suit="C" />
@@ -73,11 +81,19 @@ export async function GET() {
           </div>
         </div>
 
-        {/* Result banner */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 32, paddingLeft: PAD, paddingRight: PAD }}>
-          <div style={{ flex: 1, height: 1, background: '#D4CFC7', display: 'flex' }} />
-          <div style={{ display: 'flex', fontSize: 32, letterSpacing: 12, color: '#1C1C1A', fontWeight: 600 }}>YOU WIN</div>
-          <div style={{ flex: 1, height: 1, background: '#D4CFC7', display: 'flex' }} />
+        {/* YOU WIN result banner */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20, paddingLeft: PAD, paddingRight: PAD }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 32, width: '100%' }}>
+            <div style={{ flex: 1, height: 1, background: '#D4CFC7', display: 'flex' }} />
+            <div style={{ display: 'flex', fontSize: 56, letterSpacing: 14, color: '#1C1C1A', fontWeight: 700 }}>YOU WIN</div>
+            <div style={{ flex: 1, height: 1, background: '#D4CFC7', display: 'flex' }} />
+          </div>
+          <div style={{ display: 'flex', gap: 24 }}>
+            <div style={{ display: 'flex', fontSize: 56, color: '#D0CCC4', lineHeight: 1 }}>♦</div>
+            <div style={{ display: 'flex', fontSize: 56, color: '#E2D0CC', lineHeight: 1 }}>♥</div>
+            <div style={{ display: 'flex', fontSize: 56, color: '#D0CCC4', lineHeight: 1 }}>♣</div>
+            <div style={{ display: 'flex', fontSize: 56, color: '#D0CCC4', lineHeight: 1 }}>♠</div>
+          </div>
         </div>
 
         {/* Player */}
