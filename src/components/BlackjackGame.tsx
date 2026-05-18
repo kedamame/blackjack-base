@@ -1,7 +1,8 @@
 'use client';
 
 import { useReducer, useCallback, useState, useEffect } from 'react';
-import { useAccount, useConnect, useSendTransaction } from 'wagmi';
+import { useAccount, useConnect } from 'wagmi';
+import { base } from 'wagmi/chains';
 import { toHex } from 'viem';
 import { PlayingCard } from './Card';
 import { useFarcasterMiniApp } from '@/lib/farcaster';
@@ -45,6 +46,19 @@ const RESULT_COLORS: Record<NonNullable<GameResult>, string> = {
 
 const BUILDER_CODE = 'bc_cso279u1';
 
+const BASE_CHAIN_HEX = '0x2105'; // 8453
+const BASE_CHAIN_PARAMS = {
+  chainId: BASE_CHAIN_HEX,
+  chainName: 'Base',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: ['https://mainnet.base.org'],
+  blockExplorerUrls: ['https://basescan.org'],
+};
+
+type EthProvider = {
+  request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
+};
+
 function shortAddr(addr: string) {
   return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 }
@@ -54,15 +68,11 @@ export function BlackjackGame() {
   const [state, dispatch] = useReducer(reducer, initialState());
   const [showConnectors, setShowConnectors] = useState(false);
 
-  const { address, isConnected } = useAccount();
+  const { address, isConnected, connector } = useAccount();
   const { connect, connectors, isPending: connectPending } = useConnect();
-  const {
-    sendTransaction,
-    isPending: txPending,
-    isSuccess: txSuccess,
-    data: txHash,
-    reset: txReset,
-  } = useSendTransaction();
+  const [txPending, setTxPending] = useState(false);
+  const [txHash, setTxHash] = useState<string | null>(null);
+  const [txSuccess, setTxSuccess] = useState(false);
 
   // Farcaster context: auto-connect after SDK has set up window.ethereum
   useEffect(() => {
@@ -71,6 +81,12 @@ export function BlackjackGame() {
     if (inj) connect({ connector: inj });
   }, [miniAppLoading, isInMiniApp, isConnected, connectPending, connect, connectors]);
 
+  const txReset = useCallback(() => {
+    setTxPending(false);
+    setTxHash(null);
+    setTxSuccess(false);
+  }, []);
+
   const onDeal = useCallback(() => {
     txReset();
     dispatch({ type: 'DEAL' });
@@ -78,15 +94,45 @@ export function BlackjackGame() {
   const onHit = useCallback(() => dispatch({ type: 'HIT' }), []);
   const onStand = useCallback(() => dispatch({ type: 'STAND' }), []);
 
-  const onRecordWin = useCallback(() => {
-    if (!address) return;
-    const label = state.result === 'blackjack' ? 'blackjack' : 'win';
-    sendTransaction({
-      to: address,
-      value: BigInt(0),
-      data: toHex(`${BUILDER_CODE}|${label}|W:${state.wins}|L:${state.losses}|P:${state.pushes}`),
-    });
-  }, [address, state.result, state.wins, state.losses, state.pushes, sendTransaction]);
+  const onRecordWin = useCallback(async () => {
+    if (!address || !connector) return;
+    setTxPending(true);
+    try {
+      const provider = await connector.getProvider() as EthProvider;
+
+      // Check actual chain — never trust wagmi's cached chainId
+      const chainHex = await provider.request({ method: 'eth_chainId' }) as string;
+      if (parseInt(chainHex, 16) !== base.id) {
+        try {
+          await provider.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: BASE_CHAIN_HEX }],
+          });
+        } catch (err) {
+          if ((err as { code?: number }).code === 4902) {
+            await provider.request({
+              method: 'wallet_addEthereumChain',
+              params: [BASE_CHAIN_PARAMS],
+            });
+          } else throw err;
+        }
+      }
+
+      const label = state.result === 'blackjack' ? 'blackjack' : 'win';
+      const data = toHex(`${BUILDER_CODE}|${label}|W:${state.wins}|L:${state.losses}|P:${state.pushes}`);
+      const hash = await provider.request({
+        method: 'eth_sendTransaction',
+        params: [{ from: address, to: address, data, value: '0x0' }],
+      }) as string;
+
+      setTxHash(hash);
+      setTxSuccess(true);
+    } catch {
+      // user rejected or chain switch failed — silently revert
+    } finally {
+      setTxPending(false);
+    }
+  }, [address, connector, state.result, state.wins, state.losses, state.pushes]);
 
   const isPlaying = state.phase === 'playing';
   const isResult = state.phase === 'result';
@@ -201,7 +247,7 @@ export function BlackjackGame() {
                 {txPending ? 'Recording...' : 'Record Win on Base'}
               </button>
             )}
-            {txSuccess && txHash && (
+            {txSuccess && txHash !== null && (
               <a
                 href={`https://basescan.org/tx/${txHash}`}
                 target="_blank"
