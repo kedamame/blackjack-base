@@ -7,7 +7,7 @@ export async function GET() {
   const W = 900;
   const H = 600;
   const CARD_W = 155;
-  const CARD_H = 296; // inner=260px, content=200px → 60px breathing room
+  const CARD_H = 220; // ≈1.42:1 ratio (real card 3.5:2.5); bottom corner is abs-positioned so no overflow
   const CARD_R = 12;
 
   const SYM: Record<string, string> = { S: '♠', H: '♥', D: '♦', C: '♣' };

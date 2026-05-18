@@ -6,7 +6,7 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://blackjack-base.verce
 
 const miniAppEmbed = {
   version: '1',
-  imageUrl: `${APP_URL}/opengraph-image?v=2`,
+  imageUrl: `${APP_URL}/opengraph-image?v=3`,
   button: {
     title: 'Play Blackjack',
     action: {
