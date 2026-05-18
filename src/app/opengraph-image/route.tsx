@@ -7,8 +7,13 @@ export async function GET() {
   const W = 900;
   const H = 600;
   const CARD_W = 155;
-  const CARD_H = 220; // ≈1.42:1 ratio (real card 3.5:2.5); bottom corner is abs-positioned so no overflow
+  // CARD_H=245 → inner=209px, content=168px (34+2+20+56+34+2+20), spare=41px=20%
+  // Screenshots use 15% spare and work; 20% gives safe buffer for Satori font inflation
+  const CARD_H = 245;
   const CARD_R = 12;
+  const RANK_SIZE = 34;
+  const SUIT_SIZE = 20;
+  const PIP_SIZE  = 56;
 
   const SYM: Record<string, string> = { S: '♠', H: '♥', D: '♦', C: '♣' };
 
@@ -18,30 +23,21 @@ export async function GET() {
     const sym = SYM[suit] ?? suit;
     return (
       <div style={{
-        display: 'flex', flexDirection: 'column',
-        position: 'relative',
+        display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
         width: CARD_W, height: CARD_H, background: '#FDFAF5',
         border: '1px solid #D4CFC7', borderRadius: CARD_R,
         paddingTop: 18, paddingBottom: 18, paddingLeft: 20, paddingRight: 20,
       }}>
-        {/* Top corner */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <div style={{ display: 'flex', fontSize: 42, fontWeight: 700, color, lineHeight: 1 }}>{rank}</div>
-          <div style={{ display: 'flex', fontSize: 24, color, lineHeight: 1 }}>{sym}</div>
+          <div style={{ display: 'flex', fontSize: RANK_SIZE, fontWeight: 700, color, lineHeight: 1 }}>{rank}</div>
+          <div style={{ display: 'flex', fontSize: SUIT_SIZE, color, lineHeight: 1 }}>{sym}</div>
         </div>
-        {/* Center pip — flex:1 fills remaining space so pip is always centered */}
-        <div style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <div style={{ display: 'flex', fontSize: 64, color: pipColor, lineHeight: 1 }}>{sym}</div>
+        <div style={{ display: 'flex', alignSelf: 'center' }}>
+          <div style={{ display: 'flex', fontSize: PIP_SIZE, color: pipColor, lineHeight: 1 }}>{sym}</div>
         </div>
-        {/* Bottom corner — absolutely pinned so it can never push past the card border */}
-        <div style={{
-          position: 'absolute',
-          bottom: 18, right: 20,
-          display: 'flex', flexDirection: 'column', gap: 2,
-          transform: 'rotate(180deg)',
-        }}>
-          <div style={{ display: 'flex', fontSize: 42, fontWeight: 700, color, lineHeight: 1 }}>{rank}</div>
-          <div style={{ display: 'flex', fontSize: 24, color, lineHeight: 1 }}>{sym}</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2, alignSelf: 'flex-end', transform: 'rotate(180deg)' }}>
+          <div style={{ display: 'flex', fontSize: RANK_SIZE, fontWeight: 700, color, lineHeight: 1 }}>{rank}</div>
+          <div style={{ display: 'flex', fontSize: SUIT_SIZE, color, lineHeight: 1 }}>{sym}</div>
         </div>
       </div>
     );
