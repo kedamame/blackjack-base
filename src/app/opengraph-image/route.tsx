@@ -18,19 +18,28 @@ export async function GET() {
     const sym = SYM[suit] ?? suit;
     return (
       <div style={{
-        display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+        display: 'flex', flexDirection: 'column',
+        position: 'relative',
         width: CARD_W, height: CARD_H, background: '#FDFAF5',
         border: '1px solid #D4CFC7', borderRadius: CARD_R,
         paddingTop: 18, paddingBottom: 18, paddingLeft: 20, paddingRight: 20,
       }}>
+        {/* Top corner */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <div style={{ display: 'flex', fontSize: 42, fontWeight: 700, color, lineHeight: 1 }}>{rank}</div>
           <div style={{ display: 'flex', fontSize: 24, color, lineHeight: 1 }}>{sym}</div>
         </div>
-        <div style={{ display: 'flex', alignSelf: 'center' }}>
+        {/* Center pip — flex:1 fills remaining space so pip is always centered */}
+        <div style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <div style={{ display: 'flex', fontSize: 64, color: pipColor, lineHeight: 1 }}>{sym}</div>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 2, alignSelf: 'flex-end', transform: 'rotate(180deg)' }}>
+        {/* Bottom corner — absolutely pinned so it can never push past the card border */}
+        <div style={{
+          position: 'absolute',
+          bottom: 18, right: 20,
+          display: 'flex', flexDirection: 'column', gap: 2,
+          transform: 'rotate(180deg)',
+        }}>
           <div style={{ display: 'flex', fontSize: 42, fontWeight: 700, color, lineHeight: 1 }}>{rank}</div>
           <div style={{ display: 'flex', fontSize: 24, color, lineHeight: 1 }}>{sym}</div>
         </div>
