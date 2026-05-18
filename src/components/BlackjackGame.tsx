@@ -4,6 +4,7 @@ import { useReducer, useCallback } from 'react';
 import { useAccount, useSendTransaction } from 'wagmi';
 import { toHex } from 'viem';
 import { PlayingCard } from './Card';
+import { useFarcasterMiniApp } from '@/lib/farcaster';
 import {
   initialState,
   dealGame,
@@ -45,6 +46,7 @@ const RESULT_COLORS: Record<NonNullable<GameResult>, string> = {
 const BUILDER_CODE = 'bc_cso279u1';
 
 export function BlackjackGame() {
+  useFarcasterMiniApp(); // calls sdk.actions.ready() and sets up Ethereum provider
   const [state, dispatch] = useReducer(reducer, initialState());
   const { address } = useAccount();
   const {
