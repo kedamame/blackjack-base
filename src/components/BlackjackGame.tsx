@@ -1,6 +1,8 @@
 'use client';
 
 import { useReducer, useCallback } from 'react';
+import { useAccount, useSendTransaction } from 'wagmi';
+import { toHex } from 'viem';
 import { PlayingCard } from './Card';
 import {
   initialState,
@@ -40,16 +42,40 @@ const RESULT_COLORS: Record<NonNullable<GameResult>, string> = {
   blackjack: 'text-amber-700',
 };
 
+const BUILDER_CODE = 'bc_cso279u1';
+
 export function BlackjackGame() {
   const [state, dispatch] = useReducer(reducer, initialState());
+  const { address } = useAccount();
+  const {
+    sendTransaction,
+    isPending: txPending,
+    isSuccess: txSuccess,
+    data: txHash,
+    reset: txReset,
+  } = useSendTransaction();
 
-  const onDeal = useCallback(() => dispatch({ type: 'DEAL' }), []);
+  const onDeal = useCallback(() => {
+    txReset();
+    dispatch({ type: 'DEAL' });
+  }, [txReset]);
   const onHit = useCallback(() => dispatch({ type: 'HIT' }), []);
   const onStand = useCallback(() => dispatch({ type: 'STAND' }), []);
+
+  const onRecordWin = useCallback(() => {
+    if (!address) return;
+    const label = state.result === 'blackjack' ? 'blackjack' : 'win';
+    sendTransaction({
+      to: address,
+      value: BigInt(0),
+      data: toHex(`${BUILDER_CODE}|${label}|W:${state.wins}|L:${state.losses}|P:${state.pushes}`),
+    });
+  }, [address, state.result, state.wins, state.losses, state.pushes, sendTransaction]);
 
   const isPlaying = state.phase === 'playing';
   const isResult = state.phase === 'result';
   const isIdle = state.phase === 'idle';
+  const isWin = state.result === 'win' || state.result === 'blackjack';
 
   return (
     <div className="flex flex-col h-full min-h-screen bg-[#EDE8DF] text-stone-900 select-none">
@@ -139,6 +165,25 @@ export function BlackjackGame() {
       <footer className="px-6 pb-8 pt-4 border-t border-stone-300">
         {(isIdle || isResult) && (
           <div className="space-y-3">
+            {isResult && isWin && !txSuccess && (
+              <button
+                onClick={onRecordWin}
+                disabled={txPending || !address}
+                className="w-full py-3 border border-stone-900 text-stone-900 text-sm tracking-[0.2em] uppercase hover:bg-stone-100 transition-colors disabled:opacity-40"
+              >
+                {txPending ? 'Recording...' : 'Record Win on Base'}
+              </button>
+            )}
+            {txSuccess && txHash && (
+              <a
+                href={`https://basescan.org/tx/${txHash}`}
+                target="_blank"
+                rel="noreferrer"
+                className="block w-full py-3 text-center border border-stone-400 text-stone-500 text-xs tracking-[0.2em] uppercase hover:border-stone-900 hover:text-stone-900 transition-colors"
+              >
+                Recorded on Base
+              </a>
+            )}
             <button
               onClick={onDeal}
               className="w-full py-4 bg-stone-900 text-[#EDE8DF] text-sm tracking-[0.2em] uppercase hover:bg-stone-800 transition-colors"
