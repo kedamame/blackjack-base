@@ -3,7 +3,8 @@
 import { useReducer, useCallback, useState, useEffect } from 'react';
 import { useAccount, useConnect } from 'wagmi';
 import { base } from 'wagmi/chains';
-import { toHex } from 'viem';
+import { encodeFunctionData } from 'viem';
+import { SCORES_CONTRACT, SCORES_ABI } from '@/lib/scores-contract';
 import { PlayingCard } from './Card';
 import { useFarcasterMiniApp } from '@/lib/farcaster';
 import {
@@ -43,8 +44,6 @@ const RESULT_COLORS: Record<NonNullable<GameResult>, string> = {
   push: 'text-stone-500',
   blackjack: 'text-amber-700',
 };
-
-const BUILDER_CODE = 'bc_cso279u1';
 
 const BASE_CHAIN_HEX = '0x2105'; // 8453
 const BASE_CHAIN_PARAMS = {
@@ -118,11 +117,14 @@ export function BlackjackGame() {
         }
       }
 
-      const label = state.result === 'blackjack' ? 'blackjack' : 'win';
-      const data = toHex(`${BUILDER_CODE}|${label}|W:${state.wins}|L:${state.losses}|P:${state.pushes}`);
+      const data = encodeFunctionData({
+        abi: SCORES_ABI,
+        functionName: 'record',
+        args: [state.wins, state.losses, state.pushes],
+      });
       const hash = await provider.request({
         method: 'eth_sendTransaction',
-        params: [{ from: address, to: address, data, value: '0x0' }],
+        params: [{ from: address, to: SCORES_CONTRACT, data, value: '0x0' }],
       }) as string;
 
       setTxHash(hash);
@@ -238,7 +240,7 @@ export function BlackjackGame() {
       <footer className="px-6 pb-8 pt-4 border-t border-stone-300">
         {(isIdle || isResult) && (
           <div className="space-y-3">
-            {isResult && isWin && !txSuccess && (
+            {isResult && isWin && !txSuccess && SCORES_CONTRACT && (
               <button
                 onClick={onRecordWin}
                 disabled={txPending || !address}

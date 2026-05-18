@@ -1,0 +1,8 @@
+[profile.default]
+src = "contracts"
+out = "contracts/out"
+cache_path = "contracts/cache"
+solc = "0.8.20"
+
+[rpc_endpoints]
+base = "https://mainnet.base.org"

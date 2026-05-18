@@ -32,3 +32,6 @@ next-env.d.ts
 /public/screenshot1.png
 /public/screenshot2.png
 /public/screenshot3.png
+.env.local
+contracts/out/
+contracts/cache/
