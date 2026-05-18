@@ -1,7 +1,7 @@
 'use client';
 
-import { useReducer, useCallback } from 'react';
-import { useAccount, useSendTransaction } from 'wagmi';
+import { useReducer, useCallback, useState, useEffect } from 'react';
+import { useAccount, useConnect, useSendTransaction } from 'wagmi';
 import { toHex } from 'viem';
 import { PlayingCard } from './Card';
 import { useFarcasterMiniApp } from '@/lib/farcaster';
@@ -45,10 +45,17 @@ const RESULT_COLORS: Record<NonNullable<GameResult>, string> = {
 
 const BUILDER_CODE = 'bc_cso279u1';
 
+function shortAddr(addr: string) {
+  return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+}
+
 export function BlackjackGame() {
-  useFarcasterMiniApp(); // calls sdk.actions.ready() and sets up Ethereum provider
+  const { isInMiniApp, isLoading: miniAppLoading } = useFarcasterMiniApp();
   const [state, dispatch] = useReducer(reducer, initialState());
-  const { address } = useAccount();
+  const [showConnectors, setShowConnectors] = useState(false);
+
+  const { address, isConnected } = useAccount();
+  const { connect, connectors, isPending: connectPending } = useConnect();
   const {
     sendTransaction,
     isPending: txPending,
@@ -56,6 +63,13 @@ export function BlackjackGame() {
     data: txHash,
     reset: txReset,
   } = useSendTransaction();
+
+  // Farcaster context: auto-connect after SDK has set up window.ethereum
+  useEffect(() => {
+    if (miniAppLoading || !isInMiniApp || isConnected || connectPending) return;
+    const inj = connectors.find((c) => c.id === 'injected');
+    if (inj) connect({ connector: inj });
+  }, [miniAppLoading, isInMiniApp, isConnected, connectPending, connect, connectors]);
 
   const onDeal = useCallback(() => {
     txReset();
@@ -87,7 +101,7 @@ export function BlackjackGame() {
           <p className="text-xs tracking-[0.2em] uppercase text-stone-500 mb-1">Base Chain</p>
           <h1 className="text-2xl font-light tracking-tight leading-none">Blackjack</h1>
         </div>
-        <div className="flex gap-5 text-right">
+        <div className="flex items-end gap-5 text-right">
           <div>
             <p className="text-xs tracking-widest uppercase text-stone-400">W</p>
             <p className="text-xl font-light tabular-nums">{state.wins}</p>
@@ -103,6 +117,23 @@ export function BlackjackGame() {
         </div>
       </header>
 
+      {/* Wallet bar */}
+      <div className="flex items-center justify-between px-6 py-2 border-b border-stone-200">
+        {isConnected && address ? (
+          <span className="text-xs font-mono text-stone-400">{shortAddr(address)}</span>
+        ) : (
+          <span className="text-xs text-stone-400">Wallet not connected</span>
+        )}
+        {!miniAppLoading && !isInMiniApp && !isConnected && (
+          <button
+            onClick={() => setShowConnectors(true)}
+            className="text-xs tracking-[0.15em] uppercase text-stone-600 border border-stone-400 px-3 py-1 hover:border-stone-900 hover:text-stone-900 transition-colors"
+          >
+            Connect
+          </button>
+        )}
+      </div>
+
       {/* Table */}
       <div className="flex flex-col flex-1 px-6 py-6 gap-6">
 
@@ -111,9 +142,7 @@ export function BlackjackGame() {
           <div className="flex items-baseline gap-3 mb-4">
             <span className="text-xs tracking-[0.2em] uppercase text-stone-400">Dealer</span>
             {(isPlaying || isResult) && (
-              <span className="text-lg font-light tabular-nums">
-                {state.dealerScore}
-              </span>
+              <span className="text-lg font-light tabular-nums">{state.dealerScore}</span>
             )}
           </div>
           <div className="flex gap-3 flex-wrap">
@@ -130,9 +159,7 @@ export function BlackjackGame() {
         <div className="flex items-center gap-4 py-2">
           <div className="flex-1 h-px bg-stone-300" />
           {isResult && state.result && (
-            <span
-              className={`text-xs tracking-[0.25em] uppercase font-medium ${RESULT_COLORS[state.result]}`}
-            >
+            <span className={`text-xs tracking-[0.25em] uppercase font-medium ${RESULT_COLORS[state.result]}`}>
               {RESULT_LABELS[state.result]}
             </span>
           )}
@@ -147,9 +174,7 @@ export function BlackjackGame() {
           <div className="flex items-baseline gap-3 mb-4">
             <span className="text-xs tracking-[0.2em] uppercase text-stone-400">You</span>
             {(isPlaying || isResult) && (
-              <span className="text-lg font-light tabular-nums">
-                {state.playerScore}
-              </span>
+              <span className="text-lg font-light tabular-nums">{state.playerScore}</span>
             )}
           </div>
           <div className="flex gap-3 flex-wrap">
@@ -216,6 +241,41 @@ export function BlackjackGame() {
           </div>
         )}
       </footer>
+
+      {/* Connector bottom sheet (browser only) */}
+      {showConnectors && (
+        <div
+          className="fixed inset-0 bg-black/40 flex items-end z-50"
+          onClick={() => setShowConnectors(false)}
+        >
+          <div
+            className="w-full bg-[#EDE8DF] px-6 pt-6 pb-10 space-y-3"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="text-xs tracking-[0.2em] uppercase text-stone-500 mb-4">
+              Connect Wallet
+            </p>
+            {connectors.map((connector) => (
+              <button
+                key={connector.id}
+                onClick={() => {
+                  connect({ connector });
+                  setShowConnectors(false);
+                }}
+                className="w-full py-4 border border-stone-900 text-stone-900 text-sm tracking-[0.2em] uppercase hover:bg-stone-900 hover:text-[#EDE8DF] transition-colors"
+              >
+                {connector.name}
+              </button>
+            ))}
+            <button
+              onClick={() => setShowConnectors(false)}
+              className="w-full py-3 text-stone-400 text-xs tracking-[0.2em] uppercase"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
